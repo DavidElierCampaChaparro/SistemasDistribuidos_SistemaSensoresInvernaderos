@@ -1,0 +1,78 @@
+# -----------------------------
+# Build and dependency outputs
+# -----------------------------
+**/target/
+**/build/
+**/out/
+
+# Maven local/generated artifacts
+.mvn/timing.properties
+**/dependency-reduced-pom.xml
+
+# -----------------------------
+# IDE and editor settings
+# -----------------------------
+# IntelliJ IDEA
+.idea/
+**/.idea/
+*.iml
+*.ipr
+*.iws
+
+# NetBeans
+.netbeans/
+**/.netbeans/
+**/nbproject/private/
+**/nbproject/cache/
+**/nbproject/private-private.properties
+**/nbproject/private-config.properties
+
+# Eclipse / Spring Tool Suite
+.project
+.classpath
+.settings/
+.springBeans
+.apt_generated/
+.factorypath
+
+# VS Code
+.vscode/
+
+# Generic editor temp files
+*.swp
+*.swo
+*~
+
+# -----------------------------
+# Logs and runtime files
+# -----------------------------
+*.log
+logs/
+*.pid
+*.seed
+*.pid.lock
+
+# Java crash logs
+hs_err_pid*
+replay_pid*
+
+# -----------------------------
+# OS-generated files
+# -----------------------------
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# -----------------------------
+# Environment and local-only files
+# -----------------------------
+.env
+.env.*
+!.env.example
+
+# -----------------------------
+# Modernization/security scan artifacts
+# -----------------------------
+cve-deps.txt
+cve-deps-all.txt
+.github/java-upgrade/

@@ -1,0 +1,24 @@
+
+// Protobuf version
+syntax = "proto3";
+
+// Configuration
+option java_multiple_files = true;
+option java_package = "com.greenhouse.grpc.greenhouse";
+option java_outer_classname = "GreenhouseProto";
+
+// Service definition
+service GreenhouseValidationService {
+  // A method that receives an ID and returns a confirmation.
+  rpc ValidateGreenhouse (GreenhouseRequest) returns (GreenhouseResponse);
+}
+
+// Input DTO (Request)
+message GreenhouseRequest {
+  int64 greenhouseId = 1;
+}
+
+// Output DTO (Response)
+message GreenhouseResponse {
+  bool exists = 1;
+}
