@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                  xmlns:auth="http://auth-service.dev/soap/auth">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <auth:LoginRequest>
+            <auth:username>admin</auth:username>
+            <auth:password>admin123</auth:password>
+        </auth:LoginRequest>
+    </soapenv:Body>
+</soapenv:Envelope>
