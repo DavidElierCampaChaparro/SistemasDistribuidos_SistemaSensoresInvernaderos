@@ -6,13 +6,8 @@ import jakarta.validation.constraints.NotNull;
 
 @Data
 public class SensorDataDTO {
-
     @NotNull
     private String sensorSerialNumber;
-
-    @NotNull
-    private Format format;
-
     @NotNull
     private String rawData;
 }

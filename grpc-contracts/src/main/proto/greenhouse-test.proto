@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.greenhouse.grpc.greenhousetesttemporal";
+option java_outer_classname = "GreenhouseTestProto";
+
+service GreenhouseTestService {
+  rpc GetThresholds (GreenhouseThresholdRequest) returns (GreenhouseThresholdResponse);
+}
+
+message GreenhouseThresholdRequest {
+  int64 greenhouseId = 1;
+}
+
+message GreenhouseThresholdResponse {
+  float triggerTemperature = 1;
+  float triggerHumidity = 2;
+}

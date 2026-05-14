@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.greenhouse.grpc.sensortesttemporal";
+option java_outer_classname = "SensorTestProto";
+
+service SensorTestService {
+  rpc GetSensorFormat (SensorRequest) returns (SensorFormatResponse);
+  rpc GetSensorGreenhouseId (SensorRequest) returns (SensorGreenhouseResponse);
+}
+
+message SensorRequest {
+  string serialNumber = 1;
+}
+
+message SensorFormatResponse {
+  string format = 1;
+}
+
+message SensorGreenhouseResponse {
+  int64 greenhouseId = 1;
+}
