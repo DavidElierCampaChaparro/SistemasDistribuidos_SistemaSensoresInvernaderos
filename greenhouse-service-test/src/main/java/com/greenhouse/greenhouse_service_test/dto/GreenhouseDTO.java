@@ -13,5 +13,4 @@ public class GreenhouseDTO {
     private Long ownerId;
     private Float triggerTemperature;
     private Float triggerHumidity;
-    private String notificationEmail;
 }

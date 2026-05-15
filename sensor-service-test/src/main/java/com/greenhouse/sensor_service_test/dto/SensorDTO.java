@@ -1,6 +1,6 @@
 package com.greenhouse.sensor_service_test.dto;
 
-import com.greenhouse.sensor_service_test.model.Format;
+import com.greenhouse.common.enums.Format;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 

@@ -1,5 +1,6 @@
 package com.greenhouse.sensor_service_test.model;
 
+import com.greenhouse.common.enums.Format;
 import jakarta.persistence.*;
 import lombok.Data;
 

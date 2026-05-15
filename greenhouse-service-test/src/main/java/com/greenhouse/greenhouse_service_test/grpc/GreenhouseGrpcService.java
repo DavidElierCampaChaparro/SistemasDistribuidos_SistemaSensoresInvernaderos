@@ -1,8 +1,7 @@
 package com.greenhouse.greenhouse_service_test.grpc;
 
-import com.greenhouse.grpc.greenhousetesttemporal.GreenhouseTestServiceGrpc;
-import com.greenhouse.grpc.greenhousetesttemporal.GreenhouseThresholdRequest;
-import com.greenhouse.grpc.greenhousetesttemporal.GreenhouseThresholdResponse;
+import com.greenhouse.greenhouse_service_test.model.Greenhouse;
+import com.greenhouse.grpc.greenhousetesttemporal.*;
 import com.greenhouse.greenhouse_service_test.service.GreenhouseService;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +20,18 @@ public class GreenhouseGrpcService extends GreenhouseTestServiceGrpc.GreenhouseT
         GreenhouseThresholdResponse response = GreenhouseThresholdResponse.newBuilder()
                 .setTriggerTemperature(greenhouse.getTriggerTemperature())
                 .setTriggerHumidity(greenhouse.getTriggerHumidity())
+                .build();
+
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void getGreenhouseOwner(GreenhouseOwnerRequest request, StreamObserver<GreenhouseOwnerResponse> responseObserver) {
+        Greenhouse greenhouse = greenhouseService.getById(request.getGreenhouseId());
+
+        GreenhouseOwnerResponse response = GreenhouseOwnerResponse.newBuilder()
+                .setOwnerId(greenhouse.getOwnerId())
                 .build();
 
         responseObserver.onNext(response);

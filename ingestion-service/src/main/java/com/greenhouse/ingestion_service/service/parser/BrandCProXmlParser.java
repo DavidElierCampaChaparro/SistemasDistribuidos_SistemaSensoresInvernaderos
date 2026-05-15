@@ -1,7 +1,7 @@
 package com.greenhouse.ingestion_service.service.parser;
 
+import com.greenhouse.common.enums.Format;
 import com.greenhouse.ingestion_service.dto.ParsedData;
-import com.greenhouse.ingestion_service.model.Format;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import javax.xml.parsers.DocumentBuilder;

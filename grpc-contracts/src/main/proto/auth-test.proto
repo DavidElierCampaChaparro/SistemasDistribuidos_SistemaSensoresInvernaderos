@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.greenhouse.grpc.authtesttemporal";
+option java_outer_classname = "AuthTestProto";
+
+service AuthTestService {
+  rpc GetOwnerEmail (OwnerRequest) returns (OwnerEmailResponse);
+}
+
+message OwnerRequest {
+  int64 ownerId = 1;
+}
+
+message OwnerEmailResponse {
+  string email = 1;
+}

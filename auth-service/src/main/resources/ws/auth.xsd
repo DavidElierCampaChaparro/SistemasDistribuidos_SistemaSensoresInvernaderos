@@ -7,7 +7,7 @@
     <xs:element name="LoginRequest">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="username" type="xs:string"/>
+                <xs:element name="email" type="xs:string"/>
                 <xs:element name="password" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>

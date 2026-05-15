@@ -1,7 +1,7 @@
 package com.greenhouse.ingestion_service.service.parser;
 
+import com.greenhouse.common.enums.Format;
 import com.greenhouse.ingestion_service.dto.ParsedData;
-import com.greenhouse.ingestion_service.model.Format;
 import org.springframework.stereotype.Component;
 import java.nio.ByteBuffer;
 import java.util.Base64;
@@ -10,7 +10,7 @@ import java.util.Base64;
 public class BrandAX100BinaryParser implements SensorParser {
 
     @Override
-    public Format getSupportedFormat() { return Format.BRAND_A_X100_JSON; }
+    public Format getSupportedFormat() { return Format.BRAND_A_X100_BINARY; }
 
     @Override
     public ParsedData parse(String rawData) {

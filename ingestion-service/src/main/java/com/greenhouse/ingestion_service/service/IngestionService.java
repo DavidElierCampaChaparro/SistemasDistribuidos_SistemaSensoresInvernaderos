@@ -1,15 +1,17 @@
 package com.greenhouse.ingestion_service.service;
 
+import com.greenhouse.common.enums.Format;
+import com.greenhouse.common.event.NotificationEvent;
 import com.greenhouse.grpc.greenhousetesttemporal.GreenhouseThresholdResponse;
 import com.greenhouse.ingestion_service.client.GreenhouseGrpcClient;
 import com.greenhouse.ingestion_service.client.SensorGrpcClient;
 import com.greenhouse.ingestion_service.dto.SensorDataDTO;
-import com.greenhouse.ingestion_service.model.Format;
 import com.greenhouse.ingestion_service.model.Record;
 import com.greenhouse.ingestion_service.repository.RecordRepository;
 import com.greenhouse.ingestion_service.dto.ParsedData;
 import com.greenhouse.ingestion_service.service.parser.SensorParser;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 
@@ -25,6 +27,7 @@ public class IngestionService {
     private final List<SensorParser> parsers;
     private final SensorGrpcClient sensorGrpcClient;
     private final GreenhouseGrpcClient greenhouseGrpcClient;
+    private final RabbitTemplate rabbitTemplate;
 
     public Record save(SensorDataDTO dto) {
         Format format = sensorGrpcClient.getFormat(dto.getSensorSerialNumber());
@@ -43,7 +46,17 @@ public class IngestionService {
         boolean humidityExceeded = data.getHumidity() > thresholds.getTriggerHumidity();
 
         if (temperatureExceeded || humidityExceeded) {
-            // TODO: call NotificationService via gRPC
+            NotificationEvent event = new NotificationEvent(
+                    dto.getSensorSerialNumber(),
+                    greenhouseId,
+                    temperatureExceeded,
+                    humidityExceeded
+            );
+            rabbitTemplate.convertAndSend(
+                    "notifications.exchange",
+                    "notifications.alert",
+                    event
+            );
         }
 
         Record record = new Record();

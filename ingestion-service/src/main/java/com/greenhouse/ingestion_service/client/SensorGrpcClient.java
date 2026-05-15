@@ -1,18 +1,13 @@
 package com.greenhouse.ingestion_service.client;
 
 
+import com.greenhouse.common.enums.Format;
 import org.springframework.stereotype.Component;
-
-
-import lombok.RequiredArgsConstructor;
 
 
 import com.greenhouse.grpc.sensortesttemporal.SensorRequest;
 import com.greenhouse.grpc.sensortesttemporal.SensorTestServiceGrpc;
-import com.greenhouse.ingestion_service.model.Format;
-import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
-import org.springframework.stereotype.Component;
 
 @Component
 public class SensorGrpcClient {

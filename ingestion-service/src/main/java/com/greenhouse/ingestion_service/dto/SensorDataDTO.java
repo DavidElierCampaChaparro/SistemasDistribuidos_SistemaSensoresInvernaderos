@@ -1,6 +1,5 @@
 package com.greenhouse.ingestion_service.dto;
 
-import com.greenhouse.ingestion_service.model.Format;
 import lombok.Data;
 import jakarta.validation.constraints.NotNull;
 

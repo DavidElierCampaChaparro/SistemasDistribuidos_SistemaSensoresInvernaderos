@@ -2,8 +2,8 @@ package com.greenhouse.ingestion_service.service.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.greenhouse.common.enums.Format;
 import com.greenhouse.ingestion_service.dto.ParsedData;
-import com.greenhouse.ingestion_service.model.Format;
 import org.springframework.stereotype.Component;
 
 @Component

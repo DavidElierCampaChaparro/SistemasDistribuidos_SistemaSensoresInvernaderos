@@ -21,7 +21,6 @@ public class GreenhouseService {
         greenhouse.setOwnerId(dto.getOwnerId());
         greenhouse.setTriggerTemperature(dto.getTriggerTemperature());
         greenhouse.setTriggerHumidity(dto.getTriggerHumidity());
-        greenhouse.setNotificationEmail(dto.getNotificationEmail());
         return greenhouseRepository.save(greenhouse);
     }
 
@@ -40,11 +39,12 @@ public class GreenhouseService {
         greenhouse.setLocation(dto.getLocation());
         greenhouse.setTriggerTemperature(dto.getTriggerTemperature());
         greenhouse.setTriggerHumidity(dto.getTriggerHumidity());
-        greenhouse.setNotificationEmail(dto.getNotificationEmail());
         return greenhouseRepository.save(greenhouse);
     }
 
     public void delete(Long id) {
         greenhouseRepository.deleteById(id);
     }
+
+
 }

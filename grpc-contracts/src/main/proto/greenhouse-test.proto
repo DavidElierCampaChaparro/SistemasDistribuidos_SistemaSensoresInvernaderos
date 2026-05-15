@@ -6,6 +6,7 @@ option java_outer_classname = "GreenhouseTestProto";
 
 service GreenhouseTestService {
   rpc GetThresholds (GreenhouseThresholdRequest) returns (GreenhouseThresholdResponse);
+  rpc GetGreenhouseOwner (GreenhouseOwnerRequest) returns (GreenhouseOwnerResponse);
 }
 
 message GreenhouseThresholdRequest {
@@ -15,4 +16,12 @@ message GreenhouseThresholdRequest {
 message GreenhouseThresholdResponse {
   float triggerTemperature = 1;
   float triggerHumidity = 2;
+}
+
+message GreenhouseOwnerRequest {
+  int64 greenhouseId = 1;
+}
+
+message GreenhouseOwnerResponse {
+  int64 ownerId = 1;
 }
