@@ -1,4 +1,4 @@
-package com.greenhouse.auth.repo;
+package com.greenhouse.auth.repository;
 
 import com.greenhouse.auth.model.Owner;
 import org.springframework.data.jpa.repository.JpaRepository;

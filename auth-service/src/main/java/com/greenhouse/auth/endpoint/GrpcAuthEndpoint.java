@@ -1,7 +1,7 @@
 package com.greenhouse.auth.endpoint;
 
 import com.greenhouse.auth.model.Owner;
-import com.greenhouse.auth.repo.OwnerRepository;
+import com.greenhouse.auth.repository.OwnerRepository;
 import com.greenhouse.grpc.authtesttemporal.AuthTestServiceGrpc;
 import com.greenhouse.grpc.authtesttemporal.OwnerEmailResponse;
 import com.greenhouse.grpc.authtesttemporal.OwnerRequest;

@@ -1,8 +1,6 @@
 package com.greenhouse.auth.endpoint;
 
-import com.greenhouse.auth.model.LoginRequest;
-import com.greenhouse.auth.model.LoginResponse;
-import com.greenhouse.auth.model.Owner;
+import com.greenhouse.auth.model.*;
 import com.greenhouse.auth.service.AuthService;
 import com.greenhouse.auth.service.JwtTokenService;
 import lombok.RequiredArgsConstructor;
@@ -35,4 +33,25 @@ public class AuthEndpoint {
         }
         return response;
     }
+
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "RegisterRequest")
+    @ResponsePayload
+    public RegisterResponse register(@RequestPayload RegisterRequest request) {
+        RegisterResponse response = new RegisterResponse();
+        try {
+            authService.register(
+                    request.getName(),
+                    request.getLastname(),
+                    request.getEmail(),
+                    request.getPassword()
+            );
+            response.setSuccess(true);
+            response.setMessage("Owner registered successfully");
+        } catch (RuntimeException e) {
+            response.setSuccess(false);
+            response.setMessage(e.getMessage());
+        }
+        return response;
+    }
+
 }
