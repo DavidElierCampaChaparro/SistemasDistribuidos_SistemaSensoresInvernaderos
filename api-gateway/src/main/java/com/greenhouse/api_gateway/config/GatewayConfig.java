@@ -26,6 +26,9 @@ public class GatewayConfig {
     @Value("${services.ingestion-url:http://localhost:8083}")
     private String ingestionUrl;
 
+    @Value("${services.analytics-url:http://localhost:8086}")
+    private String analyticsUrl;
+
     @Bean
     public RouterFunction<ServerResponse> routes() {
         return route("greenhouse")
@@ -37,6 +40,7 @@ public class GatewayConfig {
                 .POST("/api/sensors/**", http(sensorUrl))
                 .DELETE("/api/sensors/**", http(sensorUrl))
                 .POST("/api/ingest/**", http(ingestionUrl))
+                .GET("/api/analytics/**", http(analyticsUrl))
                 .filter(jwtAuthFilter)
                 .build();
     }

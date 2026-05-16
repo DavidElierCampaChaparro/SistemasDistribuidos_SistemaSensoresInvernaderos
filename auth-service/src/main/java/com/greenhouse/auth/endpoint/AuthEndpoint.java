@@ -25,7 +25,7 @@ public class AuthEndpoint {
             Owner owner = authService.login(request.getEmail(), request.getPassword());
             response.setSuccess(true);
             response.setMessage("Authentication successful");
-            response.setToken(JwtTokenService.generateToken(owner.getEmail()));
+            response.setToken(JwtTokenService.generateToken(owner.getEmail(), owner.getId()));
         } catch (RuntimeException e) {
             response.setSuccess(false);
             response.setMessage(e.getMessage());

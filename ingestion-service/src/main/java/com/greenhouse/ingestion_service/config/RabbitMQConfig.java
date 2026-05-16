@@ -1,5 +1,6 @@
 package com.greenhouse.ingestion_service.config;
 
+import org.springframework.amqp.core.FanoutExchange;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -19,5 +20,10 @@ public class RabbitMQConfig {
         RabbitTemplate template = new RabbitTemplate(connectionFactory);
         template.setMessageConverter(messageConverter());
         return template;
+    }
+
+    @Bean
+    public FanoutExchange sensorDataExchange() {
+        return new FanoutExchange("sensor.data.exchange");
     }
 }

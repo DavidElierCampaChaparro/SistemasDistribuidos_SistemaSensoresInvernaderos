@@ -20,4 +20,10 @@ public class IngestionController {
         Record saved = ingestionService.save(dto);
         return ResponseEntity.ok(saved);
     }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleError(RuntimeException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
 }

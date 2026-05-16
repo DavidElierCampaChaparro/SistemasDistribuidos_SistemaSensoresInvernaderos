@@ -5,15 +5,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class NotificationEvent implements Serializable {
+public class SensorDataEvent implements Serializable {
     private String sensorSerialNumber;
     private Long greenhouseId;
-    private boolean temperatureExceeded;
-    private boolean humidityExceeded;
     private Float temperature;
     private Float humidity;
+    private LocalDateTime timestamp;
 }

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="sensorDataReport">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="greenhouseId" type="xs:long"/>
+                <xs:element name="from" type="xs:string"/>
+                <xs:element name="to" type="xs:string"/>
+                <xs:element name="records" type="recordList"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="recordList">
+        <xs:sequence>
+            <xs:element name="record" type="sensorRecord" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="sensorRecord">
+        <xs:sequence>
+            <xs:element name="sensorSerialNumber" type="xs:string"/>
+            <xs:element name="temperature" type="xs:float"/>
+            <xs:element name="humidity" type="xs:float"/>
+            <xs:element name="timestamp" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

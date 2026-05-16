@@ -13,9 +13,10 @@ public final class JwtTokenService {
 
     private JwtTokenService() {}
 
-    public static String generateToken(String email) {
+    public static String generateToken(String email, Long userId) {
         return JWT.create()
                 .withSubject(email)
+                .withClaim("userId", userId)
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date(System.currentTimeMillis() + 3600000))
                 .sign(ALGORITHM);

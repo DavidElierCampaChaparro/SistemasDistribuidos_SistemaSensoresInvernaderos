@@ -1,6 +1,7 @@
 package com.greenhouse.notification_service_test.service;
 
-import com.greenhouse.common.event.NotificationEvent;
+import com.greenhouse.common.event.SensorDataEvent;
+import com.greenhouse.grpc.greenhousetesttemporal.GreenhouseThresholdResponse;
 import com.greenhouse.notification_service_test.grpc.AuthGrpcClient;
 import com.greenhouse.notification_service_test.grpc.GreenhouseGrpcClient;
 import com.greenhouse.notification_service_test.model.NotificationLog;
@@ -23,27 +24,35 @@ public class NotificationService {
     private final NotificationLogRepository notificationLogRepository;
     private final JavaMailSender mailSender;
 
-    public void processNotification(NotificationEvent event) {
+    public void processNotification(SensorDataEvent event) {
         NotificationLog notificationLog = new NotificationLog();
         notificationLog.setSensorSerialNumber(event.getSensorSerialNumber());
         notificationLog.setGreenhouseId(event.getGreenhouseId());
-        notificationLog.setTemperatureExceeded(event.isTemperatureExceeded());
-        notificationLog.setHumidityExceeded(event.isHumidityExceeded());
         notificationLog.setSentAt(LocalDateTime.now());
 
-        try {
-            log.info("Getting ownerId for greenhouseId: {}", event.getGreenhouseId());
-            Long ownerId = greenhouseGrpcClient.getOwnerId(event.getGreenhouseId());
-            log.info("Got ownerId: {}", ownerId);
+        GreenhouseThresholdResponse thresholds =
+                greenhouseGrpcClient.getThresholds(event.getGreenhouseId());
 
+        boolean tempExceeded = event.getTemperature() > thresholds.getTriggerTemperature();
+        boolean humidityExceeded = event.getHumidity() > thresholds.getTriggerHumidity();
+
+        notificationLog.setTemperatureExceeded(tempExceeded);
+        notificationLog.setHumidityExceeded(humidityExceeded);
+
+        if (!tempExceeded && !humidityExceeded) {
+            notificationLog.setStatus("NO_ALERT");
+            notificationLogRepository.save(notificationLog);
+            return;
+        }
+
+        try {
+            Long ownerId = greenhouseGrpcClient.getOwnerId(event.getGreenhouseId());
             String email = authGrpcClient.getOwnerEmail(ownerId);
-            log.info("Got email: {}", email);
 
             notificationLog.setOwnerId(ownerId);
             notificationLog.setEmailSentTo(email);
 
-            sendEmail(email, event);
-
+            sendEmail(email, event, tempExceeded, humidityExceeded);
             notificationLog.setStatus("SENT");
         } catch (Exception e) {
             notificationLog.setStatus("FAILED");
@@ -53,7 +62,12 @@ public class NotificationService {
         }
     }
 
-    private void sendEmail(String to, NotificationEvent event) {
+    private void sendEmail(
+            String to,
+            SensorDataEvent event,
+            boolean tempExceeded,
+            boolean humidityExceeded
+    ) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
         message.setSubject("Greenhouse Monitoring System - Threshold Alert");
@@ -63,12 +77,10 @@ public class NotificationService {
         body.append("The following thresholds have been exceeded in greenhouse ")
                 .append(event.getGreenhouseId()).append(":\n\n");
 
-        if (event.isTemperatureExceeded()) {
+        if (tempExceeded)
             body.append("- Temperature: ").append(event.getTemperature()).append("°C\n");
-        }
-        if (event.isHumidityExceeded()) {
+        if (humidityExceeded)
             body.append("- Humidity: ").append(event.getHumidity()).append("%\n");
-        }
 
         body.append("\nSensor: ").append(event.getSensorSerialNumber());
         body.append("\n\nPlease take the necessary measures.");

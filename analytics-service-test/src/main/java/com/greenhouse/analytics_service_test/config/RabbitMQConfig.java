@@ -1,4 +1,4 @@
-package com.greenhouse.notification_service_test.config;
+package com.greenhouse.analytics_service_test.config;
 
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
@@ -10,10 +10,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
-    public static final String QUEUE = "notifications.queue";
+    public static final String QUEUE = "analytics.queue";
 
     @Bean
-    public Queue notificationQueue() {
+    public Queue analyticsQueue() {
         return new Queue(QUEUE, true);
     }
 
@@ -23,8 +23,8 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Binding notificationBinding(Queue notificationQueue, FanoutExchange sensorDataExchange) {
-        return BindingBuilder.bind(notificationQueue).to(sensorDataExchange);
+    public Binding analyticsBinding(Queue analyticsQueue, FanoutExchange sensorDataExchange) {
+        return BindingBuilder.bind(analyticsQueue).to(sensorDataExchange);
     }
 
     @Bean

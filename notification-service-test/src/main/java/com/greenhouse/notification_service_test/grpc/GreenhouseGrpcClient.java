@@ -1,8 +1,6 @@
 package com.greenhouse.notification_service_test.grpc;
 
-import com.greenhouse.grpc.greenhousetesttemporal.GreenhouseTestServiceGrpc;
-import com.greenhouse.grpc.greenhousetesttemporal.GreenhouseOwnerRequest;
-import com.greenhouse.grpc.greenhousetesttemporal.GreenhouseOwnerResponse;
+import com.greenhouse.grpc.greenhousetesttemporal.*;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +14,13 @@ public class GreenhouseGrpcClient {
         GreenhouseOwnerRequest request = GreenhouseOwnerRequest.newBuilder()
                 .setGreenhouseId(greenhouseId)
                 .build();
-        GreenhouseOwnerResponse response = greenhouseStub.getGreenhouseOwner(request);
-        return response.getOwnerId();
+        return greenhouseStub.getGreenhouseOwner(request).getOwnerId();
+    }
+
+    public GreenhouseThresholdResponse getThresholds(Long greenhouseId) {
+        GreenhouseThresholdRequest request = GreenhouseThresholdRequest.newBuilder()
+                .setGreenhouseId(greenhouseId)
+                .build();
+        return greenhouseStub.getThresholds(request);
     }
 }
