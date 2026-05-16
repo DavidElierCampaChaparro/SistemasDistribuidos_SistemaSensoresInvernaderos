@@ -14,4 +14,6 @@ public class NotificationEvent implements Serializable {
     private Long greenhouseId;
     private boolean temperatureExceeded;
     private boolean humidityExceeded;
+    private Float temperature;
+    private Float humidity;
 }

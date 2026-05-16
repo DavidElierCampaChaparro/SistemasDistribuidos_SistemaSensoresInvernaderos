@@ -2,7 +2,7 @@ package com.greenhouse.auth.endpoint;
 
 import com.greenhouse.auth.model.*;
 import com.greenhouse.auth.service.AuthService;
-import com.greenhouse.auth.service.JwtTokenService;
+import com.greenhouse.common.util.JwtTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;

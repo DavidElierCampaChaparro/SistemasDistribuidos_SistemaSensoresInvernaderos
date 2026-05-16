@@ -50,7 +50,9 @@ public class IngestionService {
                     dto.getSensorSerialNumber(),
                     greenhouseId,
                     temperatureExceeded,
-                    humidityExceeded
+                    humidityExceeded,
+                    data.getTemperature(),
+                    data.getHumidity()
             );
             rabbitTemplate.convertAndSend(
                     "notifications.exchange",

@@ -1,0 +1,148 @@
+services:
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  auth-service:
+    build: ./auth-service
+    ports:
+      - "8090:8090"
+      - "9094:9094"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/auth_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL8Dialect
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  greenhouse-service:
+    build: ./greenhouse-service-test
+    ports:
+      - "8081:8081"
+      - "9093:9093"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/greenhouse_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL8Dialect
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  sensor-service:
+    build: ./sensor-service-test
+    ports:
+      - "8082:8082"
+      - "9092:9092"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/sensor_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL8Dialect
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  ingestion-service:
+    build: ./ingestion-service
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/ingestion_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL8Dialect
+      - GRPC_CLIENT_SENSORSERVICE_ADDRESS=static://sensor-service:9092
+      - GRPC_CLIENT_SENSORSERVICE_NEGOTIATIONTYPE=plaintext
+      - GRPC_CLIENT_GREENHOUSESERVICE_ADDRESS=static://greenhouse-service:9093
+      - GRPC_CLIENT_GREENHOUSESERVICE_NEGOTIATIONTYPE=plaintext
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      sensor-service:
+        condition: service_started
+      greenhouse-service:
+        condition: service_started
+
+  notification-service:
+    build: ./notification-service-test
+    ports:
+      - "8085:8085"
+      - "9095:9095"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/notification_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_MAIL_USERNAME=${MAIL_USERNAME}
+      - SPRING_MAIL_PASSWORD=${MAIL_PASSWORD}
+      - GRPC_CLIENT_AUTHSERVICE_ADDRESS=static://auth-service:9094
+      - GRPC_CLIENT_AUTHSERVICE_NEGOTIATIONTYPE=plaintext
+      - GRPC_CLIENT_GREENHOUSESERVICE_ADDRESS=static://greenhouse-service:9093
+      - GRPC_CLIENT_GREENHOUSESERVICE_NEGOTIATIONTYPE=plaintext
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL8Dialect
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      auth-service:
+        condition: service_started
+      greenhouse-service:
+        condition: service_started
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVICES_GREENHOUSE-URL=http://greenhouse-service:8081
+      - SERVICES_SENSOR-URL=http://sensor-service:8082
+      - SERVICES_INGESTION-URL=http://ingestion-service:8083
+    depends_on:
+      - auth-service
+      - greenhouse-service
+      - sensor-service
+      - ingestion-service
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - api-gateway
+
+  iot-field-gateway:
+    build: ./iot-field-gateway
+    network_mode: host
+    privileged: true
+    volumes:
+      - /var/run/dbus:/var/run/dbus
+
+volumes:
+  mysql-data:

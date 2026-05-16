@@ -1,7 +1,7 @@
 package com.greenhouse.notification_service_test.consumer;
 
+import com.greenhouse.common.event.NotificationEvent;
 import com.greenhouse.notification_service_test.config.RabbitMQConfig;
-import com.greenhouse.notification_service_test.event.NotificationEvent;
 import com.greenhouse.notification_service_test.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

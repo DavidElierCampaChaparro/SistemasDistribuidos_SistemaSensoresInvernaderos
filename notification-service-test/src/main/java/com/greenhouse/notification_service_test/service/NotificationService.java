@@ -1,6 +1,6 @@
 package com.greenhouse.notification_service_test.service;
 
-import com.greenhouse.notification_service_test.event.NotificationEvent;
+import com.greenhouse.common.event.NotificationEvent;
 import com.greenhouse.notification_service_test.grpc.AuthGrpcClient;
 import com.greenhouse.notification_service_test.grpc.GreenhouseGrpcClient;
 import com.greenhouse.notification_service_test.model.NotificationLog;
@@ -56,13 +56,23 @@ public class NotificationService {
     private void sendEmail(String to, NotificationEvent event) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
-        message.setSubject("⚠️ Greenhouse Alert - Sensor " + event.getSensorSerialNumber());
+        message.setSubject("Greenhouse Monitoring System - Threshold Alert");
 
         StringBuilder body = new StringBuilder();
-        body.append("An alert has been triggered in greenhouse ").append(event.getGreenhouseId()).append(".\n\n");
-        if (event.isTemperatureExceeded()) body.append("• Temperature threshold exceeded.\n");
-        if (event.isHumidityExceeded()) body.append("• Humidity threshold exceeded.\n");
-        body.append("\nPlease take the necessary measures.");
+        body.append("Hello,\n\n");
+        body.append("The following thresholds have been exceeded in greenhouse ")
+                .append(event.getGreenhouseId()).append(":\n\n");
+
+        if (event.isTemperatureExceeded()) {
+            body.append("- Temperature: ").append(event.getTemperature()).append("°C\n");
+        }
+        if (event.isHumidityExceeded()) {
+            body.append("- Humidity: ").append(event.getHumidity()).append("%\n");
+        }
+
+        body.append("\nSensor: ").append(event.getSensorSerialNumber());
+        body.append("\n\nPlease take the necessary measures.");
+        body.append("\n\nGreenhouse Monitoring System");
 
         message.setText(body.toString());
         mailSender.send(message);

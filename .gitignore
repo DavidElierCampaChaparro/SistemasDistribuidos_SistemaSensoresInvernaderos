@@ -76,3 +76,6 @@ Desktop.ini
 cve-deps.txt
 cve-deps-all.txt
 .github/java-upgrade/
+
+.agents/
+AGENTS.md
