@@ -36,3 +36,18 @@ def load_register_data(greenhouse_id: int, days: int = 30) -> pd.DataFrame:
     """
     with sensor_engine.connect() as conn:
         return pd.read_sql(sql, conn, params={"gid": greenhouse_id})
+
+
+def load_register_data_range(greenhouse_id: int, start: str, end: str) -> pd.DataFrame:
+        """Load all register rows for a greenhouse between start and end timestamps."""
+        sql = f"""
+                SELECT r.time_stamp, r.temperature, r.humidity
+                FROM register r
+                JOIN sensor s ON r.sensor_id = s.id
+                WHERE s.greenhouse_id = %(gid)s
+                    AND r.time_stamp >= %(start)s
+                    AND r.time_stamp <= %(end)s
+                ORDER BY r.time_stamp ASC
+        """
+        with sensor_engine.connect() as conn:
+                return pd.read_sql(sql, conn, params={"gid": greenhouse_id, "start": start, "end": end})
