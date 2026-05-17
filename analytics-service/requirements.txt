@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pika
+sqlalchemy
+pymysql
+pandas
+numpy
+scipy
+matplotlib
+reportlab

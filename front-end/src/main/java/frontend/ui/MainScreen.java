@@ -4,6 +4,15 @@
  */
 package frontend.ui;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import requests.ReportRequest;
+import requests.ReportResponse;
+
 /**
  *
  * @author David Campa 245178
@@ -11,6 +20,7 @@ package frontend.ui;
 public class MainScreen extends javax.swing.JFrame {
     
     private final String token;
+    private static final int DEFAULT_GREENHOUSE_ID = 1;
 
     /**
      * Creates new form PantallaPrincipal
@@ -42,6 +52,8 @@ public class MainScreen extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
+        buttonDescargarReporteDelInvernadero = new javax.swing.JToggleButton();
+        jButton1 = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         sessionMenu = new javax.swing.JMenu();
         logout = new javax.swing.JMenuItem();
@@ -51,6 +63,11 @@ public class MainScreen extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         addGreenhouse.setText("Agregar Invernadero");
+        addGreenhouse.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addGreenhouseActionPerformed(evt);
+            }
+        });
 
         jLabel1.setText("Nombre del invernadero");
 
@@ -84,6 +101,20 @@ public class MainScreen extends javax.swing.JFrame {
 
         jLabel4.setText("Invernadero 1");
 
+        buttonDescargarReporteDelInvernadero.setText("Descargar reporte invernadero ");
+        buttonDescargarReporteDelInvernadero.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonDescargarReporteDelInvernaderoActionPerformed(evt);
+            }
+        });
+
+        jButton1.setText("jButton1");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         sessionMenu.setText("Sesion");
 
         logout.setText("Logout");
@@ -107,11 +138,18 @@ public class MainScreen extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(65, 65, 65)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(addGreenhouse))
-                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(1021, Short.MAX_VALUE))
+                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(addGreenhouse)
+                                .addGap(54, 54, 54)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jButton1)
+                            .addComponent(buttonDescargarReporteDelInvernadero))))
+                .addContainerGap(823, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -120,8 +158,12 @@ public class MainScreen extends javax.swing.JFrame {
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 389, Short.MAX_VALUE)
-                .addComponent(addGreenhouse)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 301, Short.MAX_VALUE)
+                .addComponent(jButton1)
+                .addGap(65, 65, 65)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(addGreenhouse)
+                    .addComponent(buttonDescargarReporteDelInvernadero))
                 .addGap(86, 86, 86))
         );
 
@@ -129,10 +171,147 @@ public class MainScreen extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
+    private void buttonDescargarReporteDelInvernaderoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonDescargarReporteDelInvernaderoActionPerformed
+        buttonDescargarReporteDelInvernadero.setEnabled(false);
+        new Thread(() -> {
+            int greenhouseId = DEFAULT_GREENHOUSE_ID;
+            ReportRequest request = new ReportRequest();
+            try {
+                ReportResponse created = request.request(greenhouseId);
+                if (created.isError() || created.getJobId() == null) {
+                    showError("No se pudo crear el reporte: " + safeMessage(created.getMessage()));
+                    return;
+                }
 
+                String jobId = created.getJobId();
+                ReportResponse status = null;
+                for (int i = 0; i < 60; i++) {
+                    status = request.getStatus(jobId);
+                    if (status.isReady()) {
+                        break;
+                    }
+                    if (status.isError()) {
+                        showError("Error en el reporte: " + safeMessage(status.getMessage()));
+                        return;
+                    }
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException ex) {
+                        Thread.currentThread().interrupt();
+                        showError("Proceso interrumpido");
+                        return;
+                    }
+                }
+
+                if (status == null || !status.isReady()) {
+                    showError("Tiempo de espera agotado para el reporte");
+                    return;
+                }
+
+                ReportResponse pdfResponse = request.downloadPdf(jobId);
+                if (pdfResponse.getPdfBytes() == null || pdfResponse.getPdfBytes().length == 0) {
+                    showError("No se pudo descargar el PDF");
+                    return;
+                }
+
+                Path savedPath = savePdf(pdfResponse.getPdfBytes(), greenhouseId);
+                showInfo("Reporte guardado en: " + savedPath.toString());
+            } catch (Exception ex) {
+                showError("Error descargando el reporte: " + ex.getMessage());
+            } finally {
+                SwingUtilities.invokeLater(() -> buttonDescargarReporteDelInvernadero.setEnabled(true));
+            }
+        }).start();
+    }//GEN-LAST:event_buttonDescargarReporteDelInvernaderoActionPerformed
+
+    private void addGreenhouseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addGreenhouseActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_addGreenhouseActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        new Thread(() -> {
+        int greenhouseId = DEFAULT_GREENHOUSE_ID;
+        ReportRequest request = new ReportRequest();
+        try {
+        ReportResponse created = request.request(greenhouseId);
+        if (created.isError() || created.getJobId() == null) {
+           showError("No se pudo crear el reporte: " + safeMessage(created.getMessage()));
+           return;
+        }
+
+        String jobId = created.getJobId();
+        ReportResponse status = null;
+        for (int i = 0; i < 60; i++) {
+           status = request.getStatus(jobId);
+           if (status.isReady()) {
+               break;
+           }
+           if (status.isError()) {
+               showError("Error en el reporte: " + safeMessage(status.getMessage()));
+               return;
+           }
+           try {
+               Thread.sleep(1000);
+           } catch (InterruptedException ex) {
+               Thread.currentThread().interrupt();
+               showError("Proceso interrumpido");
+               return;
+           }
+        }
+
+        if (status == null || !status.isReady()) {
+           showError("Tiempo de espera agotado para el reporte");
+           return;
+        }
+
+        ReportResponse pdfResponse = request.downloadPdf(jobId);
+        if (pdfResponse.getPdfBytes() == null || pdfResponse.getPdfBytes().length == 0) {
+           showError("No se pudo descargar el PDF");
+           return;
+        }
+
+        Path savedPath = savePdf(pdfResponse.getPdfBytes(), greenhouseId);
+        showInfo("Reporte guardado en: " + savedPath.toString());
+        } catch (Exception ex) {
+        showError("Error descargando el reporte: " + ex.getMessage());
+        } finally {
+        SwingUtilities.invokeLater(() -> buttonDescargarReporteDelInvernadero.setEnabled(true));
+        }
+        }).start();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private Path savePdf(byte[] pdfBytes, int greenhouseId) throws IOException {
+        Path downloads = Paths.get(System.getProperty("user.home"), "Downloads");
+        Files.createDirectories(downloads);
+        String fileName = "reporte_invernadero_" + greenhouseId + "_" + System.currentTimeMillis() + ".pdf";
+        Path target = downloads.resolve(fileName);
+        Files.write(target, pdfBytes);
+        return target;
+    }
+
+    private void showInfo(String message) {
+        SwingUtilities.invokeLater(() ->
+            JOptionPane.showMessageDialog(this, message, "Reporte", JOptionPane.INFORMATION_MESSAGE)
+        );
+    }
+
+    private void showError(String message) {
+        SwingUtilities.invokeLater(() ->
+            JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE)
+        );
+    }
+
+    private String safeMessage(String message) {
+        return message == null || message.isBlank() ? "Sin detalles" : message;
+    }
+    
+    
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton addGreenhouse;
+    private javax.swing.JToggleButton buttonDescargarReporteDelInvernadero;
     private javax.swing.JMenu helpMenu;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

@@ -105,19 +105,23 @@ public class Login extends javax.swing.JFrame {
         char[] passChars = jPasswordField1.getPassword();
         String password = new String(passChars);
 
-        try {
-            AuthResponse response = authentication.login(username, password);
-            if (response.isSuccess()) {
-                MainScreen mainScreen = new MainScreen(response.getToken());
-                mainScreen.setVisible(true);
-                this.dispose();
-            } else {
-                JOptionPane.showMessageDialog(this, response.getMessage(), "Login fallido", JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (Exception e) {
-            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, "Error conectando al auth-service", e);
-            JOptionPane.showMessageDialog(this, "No se pudo conectar con el auth-service", "Error", JOptionPane.ERROR_MESSAGE);
-        }
+        MainScreen mainScreen = new MainScreen();
+        mainScreen.setVisible(true);
+        this.dispose();
+        
+//        try {
+//            AuthResponse response = authentication.login(username, password);
+//            if (response.isSuccess()) {
+//                MainScreen mainScreen = new MainScreen(response.getToken());
+//                mainScreen.setVisible(true);
+//                this.dispose();
+//            } else {
+//                JOptionPane.showMessageDialog(this, response.getMessage(), "Login fallido", JOptionPane.ERROR_MESSAGE);
+//            }
+//        } catch (Exception e) {
+//            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, "Error conectando al auth-service", e);
+//            JOptionPane.showMessageDialog(this, "No se pudo conectar con el auth-service", "Error", JOptionPane.ERROR_MESSAGE);
+//        }
         
     }//GEN-LAST:event_entrarButtonActionPerformed
 

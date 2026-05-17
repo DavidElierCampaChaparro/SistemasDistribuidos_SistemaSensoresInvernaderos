@@ -76,3 +76,7 @@ Desktop.ini
 cve-deps.txt
 cve-deps-all.txt
 .github/java-upgrade/
+
+# Python cache
+**/__pycache__/
+__pycache__/
