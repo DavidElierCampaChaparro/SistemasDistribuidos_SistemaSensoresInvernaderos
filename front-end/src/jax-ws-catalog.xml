@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
-    <system systemId="http://pcfotus:8080/authentication-service/login?wsdl" uri="wsdl/pcfotus_8080/authentication-service/login.wsdl"/>
-    <system systemId="http://pcfotus:8080/authentication-service/login?xsd=1" uri="wsdl/pcfotus_8080/authentication-service/login.xsd_1.xsd"/>
-</catalog>

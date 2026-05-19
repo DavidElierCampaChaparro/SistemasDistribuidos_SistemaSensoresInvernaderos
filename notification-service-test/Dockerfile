@@ -1,10 +1,11 @@
-FROM eclipse-temurin:21-jdk-alpine
-FROM maven:3.9.4-eclipse-temurin-17 AS build
+FROM maven:3.9.4-eclipse-temurin-21 AS build
 WORKDIR /workspace
 COPY . .
-RUN mvn -pl notification-service-test -am -DskipTests package
+RUN mvn -f grpc-contracts/pom.xml -DskipTests install \
+ && mvn -f greenhouse-common/pom.xml -DskipTests install \
+ && mvn -f notification-service-test/pom.xml -DskipTests package
 
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 COPY --from=build /workspace/notification-service-test/target/*.jar app.jar
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
