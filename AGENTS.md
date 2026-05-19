@@ -55,3 +55,29 @@ notifications.
 - Use `mvn spring-boot:run` when you need to start a service locally.
 - Use `mvn clean install` only when a full module build is needed.
 - The workspace targets Java 17 and Maven 3.9+.
+
+
+## Docker
+Pasos para arrancarlo desde la raíz del repo.
+Ejecutar desde la carpeta raíz del repo (donde está docker-compose.yml).
+
+Para probar build real
+docker compose build --no-cache
+
+Build + arrancar en background:
+docker compose up -d --build
+
+Si ya compilaste y solo quieres iniciar:
+docker compose up -d
+
+Ver estado de servicios:
+docker compose ps
+
+Seguir logs (todo el stack o un servicio):
+docker compose logs -f         # tododocker compose logs -f api-gateway   # un servicio
+
+Entrar en un contenedor (shell):
+docker compose exec sensor-service sh
+
+Parar y borrar contenedores/redes (preservar volúmenes):
+docker compose down

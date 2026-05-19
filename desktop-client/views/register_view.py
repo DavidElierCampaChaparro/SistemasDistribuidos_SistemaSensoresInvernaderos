@@ -81,16 +81,16 @@ class RegisterView(ctk.CTkToplevel):
         b.pack(padx=30, fill="x", pady=(10, 30))
  
         ctk.CTkButton(b, text="Create Account", height=44, corner_radius=8,
-                      fg_color=ACCENT, hover_color=ACCENT_HOVER,
-                      text_color="white", font=ctk.CTkFont(size=14, weight="bold"),
-                      command=self._register).pack(fill="x", pady=(0, 8))
+                  fg_color=ACCENT, hover_color=ACCENT_HOVER,
+                  text_color="white", font=ctk.CTkFont(size=14, weight="bold"),
+                  command=self._submit_register).pack(fill="x", pady=(0, 8))
  
         ctk.CTkButton(b, text="← Back to Sign In", height=40, corner_radius=8,
                       fg_color="transparent", border_width=1, border_color=BORDER,
                       text_color=TEXT_MUTED, hover_color=BG,
                       command=self._back).pack(fill="x")
  
-    def _register(self):
+    def _submit_register(self):
         name = self.name.get().strip()
         lastname = self.lastname.get().strip()
         email = self.email.get().strip()
