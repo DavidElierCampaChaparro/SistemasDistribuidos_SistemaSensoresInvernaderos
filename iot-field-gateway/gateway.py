@@ -1,4 +1,5 @@
 import asyncio
+import os
 import requests
 import xml.etree.ElementTree as ET
 from bleak import BleakScanner, BleakClient
@@ -7,8 +8,8 @@ import json
 # Configuration
 SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
 CHARACTERISTIC_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8"
-AUTH_SERVICE_URL = "http://auth-service:8090/ws"
-API_GATEWAY_URL = "http://api-gateway:8080/api/ingest"
+AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL", "http://host.docker.internal:8090/ws")
+API_GATEWAY_URL = os.getenv("API_GATEWAY_URL", "http://host.docker.internal:8080/api/ingest")
 
 # System credentials
 SYSTEM_EMAIL = "romomanulo@gmail.com"
@@ -31,7 +32,10 @@ def login():
     </soapenv:Envelope>
     """
     headers = {"Content-Type": "text/xml;charset=UTF-8", "SOAPAction": ""}
-    response = requests.post(AUTH_SERVICE_URL, data=soap_body, headers=headers)
+    response = requests.post(AUTH_SERVICE_URL, data=soap_body, headers=headers, timeout=15)
+
+    if response.status_code != 200:
+        raise Exception(f"Login fallido: HTTP {response.status_code} - {response.text}")
     
     root = ET.fromstring(response.text)
     ns = {"soap": "http://schemas.xmlsoap.org/soap/envelope/",
@@ -77,13 +81,13 @@ def forward_to_gateway(sensor_data: dict):
         "Authorization": f"Bearer {token}"
     }
 
-    response = requests.post(API_GATEWAY_URL, json=payload, headers=headers)
+    response = requests.post(API_GATEWAY_URL, json=payload, headers=headers, timeout=15)
     
     if response.status_code == 401:
         print("Token expired, renewing...")
         login()
         headers["Authorization"] = f"Bearer {token}"
-        response = requests.post(API_GATEWAY_URL, json=payload, headers=headers)
+        response = requests.post(API_GATEWAY_URL, json=payload, headers=headers, timeout=15)
     
     if response.status_code == 200:
         print(f"Data sent successfully: {payload}")

@@ -25,6 +25,7 @@ public class AuthService {
     }
 
     public Owner login(String email, String password) {
+        System.out.println("Attempting login for email: " + email);
         return ownerRepository.findByEmail(email)
                 .filter(owner -> PasswordUtil.matches(password, owner.getPassword()))
                 .orElseThrow(() -> new RuntimeException("Invalid credentials"));

@@ -171,6 +171,9 @@ services:
       dockerfile: Dockerfile
     network_mode: host
     privileged: true
+    environment:
+      - AUTH_SERVICE_URL=http://host.docker.internal:8090/ws
+      - API_GATEWAY_URL=http://host.docker.internal:8080/api/ingest
     volumes:
       - /var/run/dbus:/var/run/dbus
 
