@@ -22,7 +22,9 @@ services:
       - "15672:15672"
 
   auth-service:
-    build: ./auth-service
+    build:
+      context: .
+      dockerfile: auth-service/Dockerfile
     ports:
       - "8090:8090"
       - "9094:9094"
@@ -36,7 +38,9 @@ services:
         condition: service_healthy
 
   greenhouse-service:
-    build: ./greenhouse-service-test
+    build:
+      context: .
+      dockerfile: greenhouse-service-test/Dockerfile
     ports:
       - "8081:8081"
       - "9093:9093"
@@ -50,7 +54,9 @@ services:
         condition: service_healthy
 
   sensor-service:
-    build: ./sensor-service-test
+    build:
+      context: .
+      dockerfile: sensor-service-test/Dockerfile
     ports:
       - "8082:8082"
       - "9092:9092"
@@ -64,7 +70,9 @@ services:
         condition: service_healthy
 
   ingestion-service:
-    build: ./ingestion-service
+    build:
+      context: .
+      dockerfile: ingestion-service/Dockerfile
     ports:
       - "8083:8083"
     environment:
@@ -84,7 +92,9 @@ services:
         condition: service_started
 
   notification-service:
-    build: ./notification-service-test
+    build:
+      context: .
+      dockerfile: notification-service-test/Dockerfile
     ports:
       - "8085:8085"
       - "9095:9095"
@@ -111,7 +121,9 @@ services:
         condition: service_started
 
   api-gateway:
-    build: ./api-gateway
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
     ports:
       - "8080:8080"
     environment:
@@ -127,7 +139,9 @@ services:
       - analytics-service
 
   analytics-service:
-    build: ./analytics-service-test
+    build:
+      context: .
+      dockerfile: analytics-service-test/Dockerfile
     ports:
       - "8086:8086"
     environment:
@@ -152,7 +166,9 @@ services:
       - api-gateway
 
   iot-field-gateway:
-    build: ./iot-field-gateway
+    build:
+      context: ./iot-field-gateway
+      dockerfile: Dockerfile
     network_mode: host
     privileged: true
     volumes:
