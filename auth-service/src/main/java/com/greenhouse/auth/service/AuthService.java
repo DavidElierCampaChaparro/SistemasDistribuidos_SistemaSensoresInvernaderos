@@ -20,14 +20,14 @@ public class AuthService {
         owner.setName(name);
         owner.setLastname(lastname);
         owner.setEmail(email);
-        owner.setPassword(PasswordUtil.encode(password));
+        owner.setPassword(password);
         return ownerRepository.save(owner);
     }
 
     public Owner login(String email, String password) {
         System.out.println("Attempting login for email: " + email);
         return ownerRepository.findByEmail(email)
-                .filter(owner -> PasswordUtil.matches(password, owner.getPassword()))
+                .filter(owner -> password.equals(owner.getPassword()))
                 .orElseThrow(() -> new RuntimeException("Invalid credentials"));
     }
 
