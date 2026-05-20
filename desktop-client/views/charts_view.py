@@ -2,18 +2,16 @@ import customtkinter as ctk
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from datetime import datetime, timedelta
+from components.loader import run_with_loader
 from api.analytics import get_by_greenhouse, get_average
  
 ACCENT = "#5a8a3c"
-ACCENT_HOVER = "#4a7a2c"
 BG = "#f5f0e8"
 BG_CARD = "#ffffff"
 TEXT = "#2c2416"
 TEXT_MUTED = "#8a7a6a"
 BORDER = "#d4c8b8"
 RED = "#c0392b"
-WIDTH = 860
-HEIGHT = 640
  
  
 class ChartsView(ctk.CTkToplevel):
@@ -21,23 +19,20 @@ class ChartsView(ctk.CTkToplevel):
         super().__init__(parent)
         self.greenhouse = greenhouse
         self.title(f"GreenWatch — Charts: {greenhouse['name']}")
-        self.geometry(f"{WIDTH}x{HEIGHT}")
+        self.geometry("900x660")
         self.resizable(True, True)
         self.configure(fg_color=BG)
         self.grab_set()
         self._center()
-        self._build_ui()
+        self._build()
+        self._load_charts()
  
     def _center(self):
         self.update_idletasks()
-        sw = self.winfo_screenwidth()
-        sh = self.winfo_screenheight()
-        x = (sw - WIDTH) // 2
-        y = (sh - HEIGHT) // 2
-        self.geometry(f"{WIDTH}x{HEIGHT}+{x}+{y}")
+        sw, sh = self.winfo_screenwidth(), self.winfo_screenheight()
+        self.geometry(f"900x660+{(sw-900)//2}+{(sh-660)//2}")
  
-    def _build_ui(self):
-        # Topbar
+    def _build(self):
         topbar = ctk.CTkFrame(self, height=60, fg_color=BG_CARD,
                               corner_radius=0, border_width=1, border_color=BORDER)
         topbar.pack(fill="x")
@@ -47,7 +42,6 @@ class ChartsView(ctk.CTkToplevel):
                      font=ctk.CTkFont(size=17, weight="bold"),
                      text_color=TEXT).pack(side="left", padx=25, pady=16)
  
-        # Filter bar
         filter_bar = ctk.CTkFrame(self, fg_color=BG_CARD,
                                   corner_radius=0, border_width=1, border_color=BORDER)
         filter_bar.pack(fill="x")
@@ -72,7 +66,7 @@ class ChartsView(ctk.CTkToplevel):
         self.to_entry.insert(0, datetime.now().strftime("%Y-%m-%d"))
  
         ctk.CTkButton(inner, text="Load", width=90, height=36, corner_radius=8,
-                      fg_color=ACCENT, hover_color=ACCENT_HOVER,
+                      fg_color=ACCENT, hover_color="#4a7a2c",
                       text_color="white", font=ctk.CTkFont(weight="bold"),
                       command=self._load_charts).pack(side="left")
  
@@ -80,22 +74,29 @@ class ChartsView(ctk.CTkToplevel):
                                         font=ctk.CTkFont(size=12))
         self.error_label.pack(side="left", padx=15)
  
-        # Chart area
         self.chart_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.chart_frame.pack(fill="both", expand=True, padx=25, pady=15)
- 
-        self._load_charts()
  
     def _load_charts(self):
         for w in self.chart_frame.winfo_children():
             w.destroy()
         self.error_label.configure(text="")
  
-        try:
-            from_dt = self.from_entry.get().strip() + "T00:00:00"
-            to_dt = self.to_entry.get().strip() + "T23:59:59"
+        from_dt = self.from_entry.get().strip() + "T00:00:00"
+        to_dt = self.to_entry.get().strip() + "T23:59:59"
+        gh_id = self.greenhouse["id"]
  
-            records = get_by_greenhouse(self.greenhouse["id"], from_dt, to_dt)
+        def task():
+            records = get_by_greenhouse(gh_id, from_dt, to_dt)
+            avg = get_average(gh_id, from_dt, to_dt) if records else None
+            return records, avg
+ 
+        def done(result, error):
+            if error:
+                self.error_label.configure(text=f"Could not load data: {error}")
+                return
+ 
+            records, avg = result
  
             if not records:
                 empty = ctk.CTkFrame(self.chart_frame, fg_color=BG_CARD,
@@ -133,23 +134,19 @@ class ChartsView(ctk.CTkToplevel):
             canvas.draw()
             canvas.get_tk_widget().pack(fill="both", expand=True)
  
-            # Stats bar
-            avg = get_average(self.greenhouse["id"], from_dt, to_dt)
-            stats = ctk.CTkFrame(self.chart_frame, fg_color=BG_CARD,
-                                  corner_radius=10, border_width=1, border_color=BORDER)
-            stats.pack(fill="x", pady=(10, 0))
+            if avg:
+                stats = ctk.CTkFrame(self.chart_frame, fg_color=BG_CARD,
+                                     corner_radius=10, border_width=1, border_color=BORDER)
+                stats.pack(fill="x", pady=(10, 0))
+                si = ctk.CTkFrame(stats, fg_color="transparent")
+                si.pack(pady=12)
+                ctk.CTkLabel(si, text=f"📊  {len(records)} records",
+                             font=ctk.CTkFont(size=12), text_color=TEXT_MUTED).pack(side="left", padx=20)
+                ctk.CTkLabel(si, text=f"🌡  Avg Temp: {avg['temperature']:.1f}°C",
+                             font=ctk.CTkFont(size=12, weight="bold"),
+                             text_color="#5a8a3c").pack(side="left", padx=20)
+                ctk.CTkLabel(si, text=f"💧  Avg Humidity: {avg['humidity']:.1f}%",
+                             font=ctk.CTkFont(size=12, weight="bold"),
+                             text_color="#2980b9").pack(side="left", padx=20)
  
-            si = ctk.CTkFrame(stats, fg_color="transparent")
-            si.pack(pady=12)
- 
-            ctk.CTkLabel(si, text=f"📊  {len(records)} records",
-                         font=ctk.CTkFont(size=12), text_color=TEXT_MUTED).pack(side="left", padx=20)
-            ctk.CTkLabel(si, text=f"🌡  Avg Temp: {avg['temperature']:.1f}°C",
-                         font=ctk.CTkFont(size=12, weight="bold"),
-                         text_color="#5a8a3c").pack(side="left", padx=20)
-            ctk.CTkLabel(si, text=f"💧  Avg Humidity: {avg['humidity']:.1f}%",
-                         font=ctk.CTkFont(size=12, weight="bold"),
-                         text_color="#2980b9").pack(side="left", padx=20)
- 
-        except Exception as e:
-            self.error_label.configure(text=f"Could not load data: {e}")
+        run_with_loader(self, task, done, message="Loading charts...")

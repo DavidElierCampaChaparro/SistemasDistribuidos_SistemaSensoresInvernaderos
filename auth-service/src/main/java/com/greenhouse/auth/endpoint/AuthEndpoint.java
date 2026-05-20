@@ -1,5 +1,6 @@
 package com.greenhouse.auth.endpoint;
 
+import com.greenhouse.auth.dto.*;
 import com.greenhouse.auth.model.*;
 import com.greenhouse.auth.service.AuthService;
 import com.greenhouse.common.util.JwtTokenService;
@@ -14,7 +15,6 @@ import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 public class AuthEndpoint {
 
     private static final String NAMESPACE_URI = "http://auth-service.dev/soap/auth";
-
     private final AuthService authService;
 
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "LoginRequest")
@@ -25,7 +25,7 @@ public class AuthEndpoint {
             Owner owner = authService.login(request.getEmail(), request.getPassword());
             response.setSuccess(true);
             response.setMessage("Authentication successful");
-            response.setToken(JwtTokenService.generateToken(owner.getEmail(), owner.getId()));
+            response.setToken(JwtTokenService.generateToken(owner.getEmail(), owner.getName(), owner.getLastname(), owner.getId()));
         } catch (RuntimeException e) {
             response.setSuccess(false);
             response.setMessage(e.getMessage());
@@ -39,12 +39,8 @@ public class AuthEndpoint {
     public RegisterResponse register(@RequestPayload RegisterRequest request) {
         RegisterResponse response = new RegisterResponse();
         try {
-            authService.register(
-                    request.getName(),
-                    request.getLastname(),
-                    request.getEmail(),
-                    request.getPassword()
-            );
+            authService.register(request.getName(), request.getLastname(),
+                    request.getEmail(), request.getPassword());
             response.setSuccess(true);
             response.setMessage("Owner registered successfully");
         } catch (RuntimeException e) {
@@ -54,4 +50,34 @@ public class AuthEndpoint {
         return response;
     }
 
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "UpdateOwnerRequest")
+    @ResponsePayload
+    public UpdateOwnerResponse updateOwner(@RequestPayload UpdateOwnerRequest request) {
+        UpdateOwnerResponse response = new UpdateOwnerResponse();
+        try {
+            authService.update(request.getId(), request.getName(),
+                    request.getLastname(), request.getEmail());
+            response.setSuccess(true);
+            response.setMessage("Owner updated successfully");
+        } catch (RuntimeException e) {
+            response.setSuccess(false);
+            response.setMessage(e.getMessage());
+        }
+        return response;
+    }
+
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "DeleteOwnerRequest")
+    @ResponsePayload
+    public DeleteOwnerResponse deleteOwner(@RequestPayload DeleteOwnerRequest request) {
+        DeleteOwnerResponse response = new DeleteOwnerResponse();
+        try {
+            authService.delete(request.getId());
+            response.setSuccess(true);
+            response.setMessage("Owner deleted successfully");
+        } catch (RuntimeException e) {
+            response.setSuccess(false);
+            response.setMessage(e.getMessage());
+        }
+        return response;
+    }
 }

@@ -33,14 +33,18 @@ services:
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
       - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL8Dialect
+      - GRPC_CLIENT_GREENHOUSE-SERVICE_ADDRESS=static://greenhouse-service:9093
+      - GRPC_CLIENT_GREENHOUSE-SERVICE_NEGOTIATIONTYPE=plaintext
     depends_on:
       mysql:
         condition: service_healthy
+      greenhouse-service:
+        condition: service_started
 
   greenhouse-service:
     build:
       context: .
-      dockerfile: greenhouse-service-test/Dockerfile
+      dockerfile: greenhouse-service/Dockerfile
     ports:
       - "8081:8081"
       - "9093:9093"
@@ -49,14 +53,18 @@ services:
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
       - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL8Dialect
+      - GRPC_CLIENT_SENSOR-SERVICE_ADDRESS=static://sensor-service:9092
+      - GRPC_CLIENT_SENSOR-SERVICE_NEGOTIATIONTYPE=plaintext
     depends_on:
       mysql:
         condition: service_healthy
+      sensor-service:
+        condition: service_started
 
   sensor-service:
     build:
       context: .
-      dockerfile: sensor-service-test/Dockerfile
+      dockerfile: sensor-service/Dockerfile
     ports:
       - "8082:8082"
       - "9092:9092"
@@ -94,7 +102,7 @@ services:
   notification-service:
     build:
       context: .
-      dockerfile: notification-service-test/Dockerfile
+      dockerfile: notification-service/Dockerfile
     ports:
       - "8085:8085"
       - "9095:9095"

@@ -5,15 +5,15 @@ import com.greenhouse.common.enums.Format;
 import org.springframework.stereotype.Component;
 
 
-import com.greenhouse.grpc.sensortesttemporal.SensorRequest;
-import com.greenhouse.grpc.sensortesttemporal.SensorTestServiceGrpc;
+import com.greenhouse.grpc.sensor.SensorRequest;
+import com.greenhouse.grpc.sensor.SensorServiceGrpc;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 
 @Component
 public class SensorGrpcClient {
 
     @GrpcClient("sensor-service")
-    private SensorTestServiceGrpc.SensorTestServiceBlockingStub sensorStub;
+    private SensorServiceGrpc.SensorServiceBlockingStub sensorStub;
 
     public Format getFormat(String serialNumber) {
         SensorRequest request = SensorRequest.newBuilder()

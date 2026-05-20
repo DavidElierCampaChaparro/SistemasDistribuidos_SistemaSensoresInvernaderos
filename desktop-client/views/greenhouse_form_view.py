@@ -1,5 +1,6 @@
 import re
 import customtkinter as ctk
+from components.loader import run_with_loader
 from api.greenhouse import create, update
 from api.auth import get_user_id
  
@@ -11,8 +12,6 @@ TEXT = "#2c2416"
 TEXT_MUTED = "#8a7a6a"
 BORDER = "#d4c8b8"
 RED = "#c0392b"
-WIDTH = 480
-HEIGHT = 540
  
  
 class GreenhouseFormView(ctk.CTkToplevel):
@@ -22,22 +21,26 @@ class GreenhouseFormView(ctk.CTkToplevel):
         self.on_save = on_save
         self.greenhouse = greenhouse
         self.title("Edit Greenhouse" if greenhouse else "Add Greenhouse")
-        self.geometry(f"{WIDTH}x{HEIGHT}")
+        self.geometry("500x560")
         self.resizable(False, False)
         self.configure(fg_color=BG)
         self.grab_set()
         self._center()
-        self._build_ui()
+        self._build()
  
     def _center(self):
         self.update_idletasks()
-        sw = self.winfo_screenwidth()
-        sh = self.winfo_screenheight()
-        x = (sw - WIDTH) // 2
-        y = (sh - HEIGHT) // 2
-        self.geometry(f"{WIDTH}x{HEIGHT}+{x}+{y}")
+        sw, sh = self.winfo_screenwidth(), self.winfo_screenheight()
+        self.geometry(f"500x560+{(sw-500)//2}+{(sh-560)//2}")
  
-    def _build_ui(self):
+    def _field(self, parent, placeholder):
+        entry = ctk.CTkEntry(parent, placeholder_text=placeholder,
+                             height=44, corner_radius=8,
+                             border_color=BORDER, fg_color=BG, text_color=TEXT)
+        entry.pack(fill="x", pady=(0, 12))
+        return entry
+ 
+    def _build(self):
         card = ctk.CTkFrame(self, fg_color=BG_CARD, corner_radius=16,
                             border_width=1, border_color=BORDER)
         card.pack(expand=True, fill="both", padx=25, pady=25)
@@ -54,7 +57,7 @@ class GreenhouseFormView(ctk.CTkToplevel):
         self.location = self._field(f, "Location")
  
         row = ctk.CTkFrame(f, fg_color="transparent")
-        row.pack(fill="x", pady=(0, 10))
+        row.pack(fill="x", pady=(0, 12))
         self.trigger_temp = ctk.CTkEntry(row, placeholder_text="Temp threshold (°C)",
                                          height=44, corner_radius=8,
                                          border_color=BORDER, fg_color=BG, text_color=TEXT)
@@ -64,15 +67,11 @@ class GreenhouseFormView(ctk.CTkToplevel):
                                              border_color=BORDER, fg_color=BG, text_color=TEXT)
         self.trigger_humidity.pack(side="left", expand=True, fill="x", padx=(6, 0))
  
-        self.notification_email = self._field(f, "Notification email")
- 
         if self.greenhouse:
             self.name.insert(0, self.greenhouse["name"])
             self.location.insert(0, self.greenhouse["location"])
             self.trigger_temp.insert(0, str(self.greenhouse["triggerTemperature"]))
             self.trigger_humidity.insert(0, str(self.greenhouse["triggerHumidity"]))
-            if self.greenhouse.get("notificationEmail"):
-                self.notification_email.insert(0, self.greenhouse["notificationEmail"])
  
         self.error_label = ctk.CTkLabel(f, text="", text_color=RED,
                                         font=ctk.CTkFont(size=12))
@@ -91,40 +90,36 @@ class GreenhouseFormView(ctk.CTkToplevel):
                       text_color=TEXT_MUTED, hover_color=BG,
                       command=self.destroy).pack(fill="x")
  
-    def _field(self, parent, placeholder):
-        entry = ctk.CTkEntry(parent, placeholder_text=placeholder,
-                             height=44, corner_radius=8,
-                             border_color=BORDER, fg_color=BG, text_color=TEXT)
-        entry.pack(fill="x", pady=(0, 10))
-        return entry
- 
     def _save(self):
+        self.error_label.configure(text="")
+        name = self.name.get().strip()
+        location = self.location.get().strip()
+
+        if not all([name, location]):
+            self.error_label.configure(text="Name and location are required")
+            return
+
         try:
-            name = self.name.get().strip()
-            location = self.location.get().strip()
-            notification_email = self.notification_email.get().strip()
- 
-            if not all([name, location]):
-                self.error_label.configure(text="Name and location are required")
-                return
- 
             trigger_temp = float(self.trigger_temp.get().strip())
             trigger_humidity = float(self.trigger_humidity.get().strip())
- 
-            if notification_email and not re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", notification_email):
-                self.error_label.configure(text="Invalid email format")
-                return
- 
-            if self.greenhouse:
-                update(self.greenhouse["id"], name, location,
-                       trigger_temp, trigger_humidity, notification_email)
-            else:
-                create(name, location, self.owner_id,
-                       trigger_temp, trigger_humidity, notification_email)
- 
-            self.on_save()
-            self.destroy()
         except ValueError:
             self.error_label.configure(text="Temperature and humidity must be numbers")
-        except Exception:
-            self.error_label.configure(text="Could not save greenhouse")
+            return
+
+        gh = self.greenhouse
+
+        def task():
+            if gh:
+                return update(gh["id"], name, location, trigger_temp, trigger_humidity)
+            else:
+                return create(name, location, self.owner_id, trigger_temp, trigger_humidity)
+
+        def done(result, error):
+            if error:
+                self.error_label.configure(text="Could not save greenhouse")
+                return
+            self.on_save()
+            self.destroy()
+
+        run_with_loader(self, task, done,
+                        message="Saving..." if gh else "Creating greenhouse...")

@@ -7,7 +7,7 @@
     <xs:element name="LoginRequest">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="email" type="xs:string"/>
+                <xs:element name="email"    type="xs:string"/>
                 <xs:element name="password" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
@@ -18,7 +18,7 @@
             <xs:sequence>
                 <xs:element name="success" type="xs:boolean"/>
                 <xs:element name="message" type="xs:string" minOccurs="0" nillable="true"/>
-                <xs:element name="token" type="xs:string" minOccurs="0" nillable="true"/>
+                <xs:element name="token"   type="xs:string" minOccurs="0" nillable="true"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -26,9 +26,9 @@
     <xs:element name="RegisterRequest">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="name" type="xs:string"/>
+                <xs:element name="name"     type="xs:string"/>
                 <xs:element name="lastname" type="xs:string"/>
-                <xs:element name="email" type="xs:string"/>
+                <xs:element name="email"    type="xs:string"/>
                 <xs:element name="password" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
@@ -43,5 +43,42 @@
         </xs:complexType>
     </xs:element>
 
+    <!-- NUEVO: Update Owner -->
+    <xs:element name="UpdateOwnerRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="id"       type="xs:long"/>
+                <xs:element name="name"     type="xs:string"/>
+                <xs:element name="lastname" type="xs:string"/>
+                <xs:element name="email"    type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="UpdateOwnerResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="success" type="xs:boolean"/>
+                <xs:element name="message" type="xs:string" minOccurs="0" nillable="true"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="DeleteOwnerRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="id" type="xs:long"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="DeleteOwnerResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="success" type="xs:boolean"/>
+                <xs:element name="message" type="xs:string" minOccurs="0" nillable="true"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
 
 </xs:schema>

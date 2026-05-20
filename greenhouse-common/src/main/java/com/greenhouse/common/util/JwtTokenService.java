@@ -13,14 +13,17 @@ public final class JwtTokenService {
 
     private JwtTokenService() {}
 
-    public static String generateToken(String email, Long userId) {
+    public static String generateToken(String email, String name, String lastname, Long userId) {
         return JWT.create()
                 .withSubject(email)
                 .withClaim("userId", userId)
+                .withClaim("name", name)
+                .withClaim("lastname", lastname)
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date(System.currentTimeMillis() + 3600000))
                 .sign(ALGORITHM);
     }
+
 
     public static DecodedJWT validateToken(String token) {
         return JWT.require(ALGORITHM)
